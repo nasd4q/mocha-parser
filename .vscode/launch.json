@@ -44,7 +44,7 @@
                 "${relativeFile}"
             ],
             "cwd": "${workspaceFolder}",
-            "sourceMaps": true,
+            //"sourceMaps": true,
             "internalConsoleOptions": "openOnSessionStart",
             "windows": {"console": "externalTerminal"}
 

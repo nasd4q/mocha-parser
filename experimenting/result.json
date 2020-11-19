@@ -1,0 +1,1 @@
+[{ "range": { "start": { "line": 9, "column": 4 }, "end": { "line": 12, "column": 6 } }, "type": "it-like", "name": "Extract nodes Extracts three nodes out of sample1.test.js" }, { "range": { "start": { "line": 6, "column": 0 }, "end": { "line": 13, "column": 2 } }, "type": "describe-like", "name": "Extract nodes" }]

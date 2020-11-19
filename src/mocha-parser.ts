@@ -65,6 +65,8 @@ export class MochaParser {
                     }
                 },
                 type: type.itLike,
+                //TODO replace `m.arguments[0].value` with more resilient method for extracting name
+                //  because currently broker for cases it("testcase #" + i + "etc.", ...)
                 name: getParents(n, mochaNodes).reverse().map(m => m.arguments[0].value).join(" ")
             }
             res.push(d);
@@ -83,12 +85,12 @@ export class MochaParser {
                     }
                 },
                 type: type.describeLike,
+                //TODO replace `m.arguments[0].value` with more resilient method for extracting name
+                //  because currently broker for cases it("testcase #" + i + "etc.", ...)
                 name: getParents(n, mochaNodes).reverse().map(m => m.arguments[0].value).join(" ")
             }
             res.push(d);
         });
         return res;
     }
-
-    private static
 }
