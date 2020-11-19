@@ -1,0 +1,16 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "package-lock.json": false,
+        "node_modules": false,
+        ".vscode": false,
+    },
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#e75a2f",
+        "titleBar.activeForeground": "#201d1d"
+    }
+}

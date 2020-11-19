@@ -1,0 +1,77 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Mocha All Tests",
+            "type": "pwa-node",
+            "request": "launch",
+            "runtimeExecutable": "node_modules/.bin/_mocha",
+            "args": [
+                "-r",
+                "ts-node/register",
+                "test/**/*.ts"
+            ],
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "Mocha Test File",
+            "type": "pwa-node",
+            "request": "launch",
+            "runtimeExecutable": "node_modules/.bin/_mocha",
+            "args": [
+                "--timeout",
+                "0",
+                "-r",
+                "ts-node/register",
+                "${relativeFile}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "windows": {"console": "externalTerminal"}
+        },
+        {
+            "name": "Run ts file",
+            "type": "pwa-node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/ts-node",
+            "args": [
+                "${relativeFile}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "windows": {"console": "externalTerminal"}
+
+        },
+        {
+            "name": "Config not to be used by Mocha Runner",
+            "type": "pwa-node",
+            "request": "launch",
+            "runtimeExecutable": "node_modules/.bin/_mocha",
+            "args": [
+                "-r",
+                "ts-node/register",
+            ],
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/script.js"
+        }
+    ]
+}
