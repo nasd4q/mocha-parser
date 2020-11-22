@@ -22,13 +22,34 @@
             "name": "Mocha Test File",
             "type": "pwa-node",
             "request": "launch",
-            "runtimeExecutable": "node_modules/.bin/_mocha",
+            "runtimeExecutable": "npx",
+            "program": "mocha",
             "args": [
                 "--timeout",
                 "0",
                 "-r",
                 "ts-node/register",
                 "${relativeFile}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "windows": {"console": "externalTerminal"}
+        },
+        {
+            "name": "Mocha Test Selection",
+            "type": "pwa-node",
+            "request": "launch",
+            "runtimeExecutable": "npx",
+            "program": "mocha",
+            "args": [
+                "--timeout",
+                "0",
+                "-r",
+                "ts-node/register",
+                "${relativeFile}",
+                "-f",
+                "${selectedText}"
             ],
             "cwd": "${workspaceFolder}",
             "sourceMaps": true,

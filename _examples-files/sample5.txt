@@ -1,0 +1,46 @@
+import * as request from 'supertest';
+import * as express from 'express';
+import { expect } from 'chai';
+import { Candle, Duration } from 'candle';
+import { Config } from '../../src/config';
+
+describe('/api/data/:name/:timeunit/:date/:time', function () {
+
+    let app: express.Express;
+
+    beforeEach(() => {
+        let app = express();
+        Config.buildApp(app);
+    })
+
+    it('response body is an array of minimum 10 candles' + '\n' +
+        'for querying natixis, H1, 23/03/2020, 18:34', (done) => {
+            request(app)
+                .get('/api/data/natixis/' + Duration.H1.getCode() + '/23032020/1834')
+                .expect(200)
+                .end((err, res) => {
+                    expect(Array.isArray(res.body)).to.equal(true);
+                    expect(res.body.length > 10).to.equal(true);
+                    expect((res.body as any[]).every(cand => Candle.isCandle(cand))).to.equal(true);
+                    done();
+                });
+        })
+ 
+    it('fetches two candles with right values for natixis, H1, 11/07/2020, 18:00', (done) => {
+        let cFri10Jul20_17H_H1 = new Candle(2.3780, 2.3925, 2.3615, 2.3810,
+            new Date(2020, 6, 10, 17, 0, 0, 0).getTime(), Duration.H1.getMs(), 1080202);
+        let cMon13Jul20_9H_H1 = new Candle(2.4150, 2.4285, 2.3860, 2.3890,
+            new Date(2020, 6, 13, 9, 0, 0, 0).getTime(), Duration.H1.getMs(), 1332221);
+
+        request(app)
+            .get('/api/data/natixis/' + Duration.H1.getCode() + '/11072020/1800')
+            .expect(200)
+            .end((err, res) => {
+                expect((res.body as Candle[]).some(c =>
+                    Candle.areSameValues(c, cFri10Jul20_17H_H1))).to.equal(true);
+                expect((res.body as Candle[]).some(c =>
+                    Candle.areSameValues(c, cMon13Jul20_9H_H1))).to.equal(true);
+                done();
+            });
+    });
+});

@@ -1,5 +1,6 @@
 import * as esprima from 'esprima';
-import { extractAllNodes, getParents, retrieveDebuggableTokens } from './esprima-util';
+import { extractAllNodes, extractName, getParents, retrieveDebuggableTokens } from './esprima-util';
+import { stripIntoEsprimableJS } from './ts-stripper';
 
 interface location {
     line: number,
@@ -19,6 +20,7 @@ interface Debuggable {
 
 export class MochaParser {
     public static extractNodes(script: string): Debuggable[] {
+        script = stripIntoEsprimableJS(script);
         let res: Debuggable[] = [];
 
         let root = esprima.parseScript(script, { loc: true, range: true, tolerant: true });
@@ -67,7 +69,7 @@ export class MochaParser {
                 type: type.itLike,
                 //TODO replace `m.arguments[0].value` with more resilient method for extracting name
                 //  because currently broker for cases it("testcase #" + i + "etc.", ...)
-                name: getParents(n, mochaNodes).reverse().map(m => m.arguments[0].value).join(" ")
+                name: getParents(n, mochaNodes).reverse().map(m => extractName(m, tokens)).join(" ")
             }
             res.push(d);
         });
@@ -85,9 +87,7 @@ export class MochaParser {
                     }
                 },
                 type: type.describeLike,
-                //TODO replace `m.arguments[0].value` with more resilient method for extracting name
-                //  because currently broker for cases it("testcase #" + i + "etc.", ...)
-                name: getParents(n, mochaNodes).reverse().map(m => m.arguments[0].value).join(" ")
+                name: getParents(n, mochaNodes).reverse().map(m => extractName(m, tokens)).join(" ")
             }
             res.push(d);
         });

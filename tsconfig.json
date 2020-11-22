@@ -13,4 +13,7 @@
   "include": [
     "./src/**/*",
   ],
+  "exclude": [
+    "./_example-files/"
+  ]
 }

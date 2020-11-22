@@ -3,7 +3,7 @@ import * as esprima from 'esprima';
 export interface Node {
     type: string;
     range?: [number, number];
-    loc?: SourceLocation;
+    loc?: LocationRange;
 }
 
 export interface Position {
@@ -11,10 +11,9 @@ export interface Position {
     column: number;
 }
 
-export interface SourceLocation {
+export interface LocationRange {
     start: Position;
     end: Position;
-    source?: string | null;
 }
 
 export const knownIdentifiers = 
@@ -51,8 +50,12 @@ export function extractAllNodes(root) {
     return res;
 }
 
-export function isStricltyInside(child, parent) {
+export function isStricltyInside(child: Node, parent: Node): boolean {
     return child.range[0] > parent.range[0] && child.range[1] < parent.range[1];
+}
+
+export function isInside(child: Node, parent: Node): boolean {
+    return child.range[0] >= parent.range[0] && child.range[1] <= parent.range[1];
 }
 
 /** Should be used on arrays of nodes where no two nodes have coinciding range (same range[0] 
@@ -61,7 +64,27 @@ export function isStricltyInside(child, parent) {
  * @returns {any[]} an array, starting with node, and with parent nodes following from closest
  * to largest
  * */
-export function getParents(node, nodes: any[]) {
+export function getParents(node: Node, nodes: Node[]): Node[] {
     let parents = nodes.filter(p=>isStricltyInside(node,p));
     return [node, ...parents.sort((n,m)=>m.range[0]-n.range[0])];
+}
+
+export function extractName(itOrDescribeLikeProbably: Node, wholeTokenList: Node[]): string {
+    console.log(itOrDescribeLikeProbably);
+    let name = "";
+    let firstArg = (itOrDescribeLikeProbably as any)?.arguments?.[0]
+    if (firstArg) {
+        if (firstArg.type === 'Literal') {
+            if (typeof firstArg.value === 'string') {
+                name = firstArg.value;
+            }
+        }
+        else {
+            let tokens = wholeTokenList.filter(t=>isInside(t, firstArg));
+            name = tokens.filter(t=>t.type==='String').map(t=>
+                (t as any).value.substring(1,(t as any).value.length-1)).join(' ');
+        }
+    }
+    
+    return name;
 }

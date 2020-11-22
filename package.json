@@ -1,8 +1,8 @@
 {
     "name": "mocha-parser",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "",
-    "main": "./_out/mocha-parser.js",
+    "main": "./_out/mocha-parser",
     "files": [
         "_out/"
     ],
