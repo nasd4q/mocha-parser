@@ -16,21 +16,21 @@ export interface LocationRange {
     end: Position;
 }
 
-export const knownIdentifiers = 
-    {
-        describeLike : ['describe', 'context', 'suite'],
-        itLike : ['it', 'specify', 'test']
-    }
+export const knownIdentifiers =
+{
+    describeLike: ['describe', 'context', 'suite'],
+    itLike: ['it', 'specify', 'test']
+}
 
 export function retrieveDebuggableTokens(script: string) {
     let tokens = esprima.tokenize(script, { loc: true, range: true });
     let describeTokens = tokens
         .filter(t => t.type === 'Identifier')
-        .filter(t => knownIdentifiers.describeLike.some(e=>e===t.value));
+        .filter(t => knownIdentifiers.describeLike.some(e => e === t.value));
     let itTokens = tokens
         .filter(t => t.type === 'Identifier')
-        .filter(t => knownIdentifiers.itLike.some(e=>e===t.value));
-    return {describeTokens, itTokens}
+        .filter(t => knownIdentifiers.itLike.some(e => e === t.value));
+    return { describeTokens, itTokens }
 }
 
 export function extractAllNodes(root) {
@@ -65,12 +65,11 @@ export function isInside(child: Node, parent: Node): boolean {
  * to largest
  * */
 export function getParents(node: Node, nodes: Node[]): Node[] {
-    let parents = nodes.filter(p=>isStricltyInside(node,p));
-    return [node, ...parents.sort((n,m)=>m.range[0]-n.range[0])];
+    let parents = nodes.filter(p => isStricltyInside(node, p));
+    return [node, ...parents.sort((n, m) => m.range[0] - n.range[0])];
 }
 
 export function extractName(itOrDescribeLikeProbably: Node, wholeTokenList: Node[]): string {
-    console.log(itOrDescribeLikeProbably);
     let name = "";
     let firstArg = (itOrDescribeLikeProbably as any)?.arguments?.[0]
     if (firstArg) {
@@ -80,11 +79,13 @@ export function extractName(itOrDescribeLikeProbably: Node, wholeTokenList: Node
             }
         }
         else {
-            let tokens = wholeTokenList.filter(t=>isInside(t, firstArg));
-            name = tokens.filter(t=>t.type==='String').map(t=>
-                (t as any).value.substring(1,(t as any).value.length-1)).join(' ');
+            let stringParts: string[] = wholeTokenList
+                .filter(t => isInside(t, firstArg))
+                .filter(t => t.type === 'String')
+                .map(t=> (t as any).value.substring(1, (t as any).value.length - 1));
+
+            name = stringParts.join(' ');
         }
     }
-    
     return name;
 }

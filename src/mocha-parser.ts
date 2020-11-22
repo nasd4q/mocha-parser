@@ -1,5 +1,6 @@
 import * as esprima from 'esprima';
 import { extractAllNodes, extractName, getParents, retrieveDebuggableTokens } from './esprima-util';
+import { getRegExpForMatchingAllWords } from './text-treatment-util';
 import { stripIntoEsprimableJS } from './ts-stripper';
 
 interface location {
@@ -15,7 +16,7 @@ interface Debuggable {
     range: { start: location, end: location },
     /** Example : 'describe', 'it' */
     type: type,
-    name: string
+    regexp: RegExp
 }
 
 export class MochaParser {
@@ -67,9 +68,8 @@ export class MochaParser {
                     }
                 },
                 type: type.itLike,
-                //TODO replace `m.arguments[0].value` with more resilient method for extracting name
-                //  because currently broker for cases it("testcase #" + i + "etc.", ...)
-                name: getParents(n, mochaNodes).reverse().map(m => extractName(m, tokens)).join(" ")
+                regexp: getRegExpForMatchingAllWords(
+                    getParents(n, mochaNodes).map(m => extractName(m, tokens)))
             }
             res.push(d);
         });
@@ -87,7 +87,8 @@ export class MochaParser {
                     }
                 },
                 type: type.describeLike,
-                name: getParents(n, mochaNodes).reverse().map(m => extractName(m, tokens)).join(" ")
+                regexp: getRegExpForMatchingAllWords(
+                    getParents(n, mochaNodes).map(m => extractName(m, tokens)))
             }
             res.push(d);
         });
