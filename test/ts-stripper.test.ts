@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { sample5 } from "../_examples-files/aux";
 import * as esprima from 'esprima';
 import { stripIntoEsprimableJS } from "../src/ts-stripper";
+import { jsFromTs } from "../src/is-valid-ts"
 
 
 describe('stripIntoEsprimableJS', function() {
@@ -11,7 +12,7 @@ describe('stripIntoEsprimableJS', function() {
         expect(()=>esprima.parseScript(script, { loc: true, range: true, tolerant: true }))
             .to.throw();
 
-        script =  stripIntoEsprimableJS(script);
+        script =  stripIntoEsprimableJS(script, jsFromTs(script));
 
         expect(()=>esprima.parseScript(script, { loc: true, range: true, tolerant: true }))
             .to.not.throw();

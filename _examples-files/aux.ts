@@ -7,6 +7,9 @@ const sample4Path = __dirname + '/sample4.test.js';
 const sample5Path = __dirname + '/sample5.txt';
 const sample6Path = __dirname + '/sample6.txt';
 const sample7Path = __dirname + '/sample7.txt';
+const sample8Path = __dirname + '/sample8.txt';
+const sample9Path = __dirname + '/sample9.txt';
+
 
 
 
@@ -30,3 +33,5 @@ export const sample4: () => Promise<string> = readFileFunc(sample4Path);
 export const sample5: () => Promise<string> = readFileFunc(sample5Path);
 export const sample6: () => Promise<string> = readFileFunc(sample6Path);
 export const sample7: () => Promise<string> = readFileFunc(sample7Path);
+export const sample8: () => Promise<string> = readFileFunc(sample8Path);
+export const sample9: () => Promise<string> = readFileFunc(sample9Path);

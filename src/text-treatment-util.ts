@@ -2,7 +2,7 @@ export function getRegExpForMatchingAllWords(phrases: string[]): RegExp {
     let wordsToMatch: string[] = [];
     phrases.map(p=>extractWords(p)).forEach(words=>wordsToMatch.push(...words));
     let regexpString = '^' + wordsToMatch.map(w=>"(?=.*"+w+")").join('') + '.*$';
-    let regexp = new RegExp(regexpString, 'g');
+    let regexp = new RegExp(regexpString);
     return regexp;
 }
 

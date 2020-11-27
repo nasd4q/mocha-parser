@@ -1,6 +1,6 @@
 import * as esprima from 'esprima';
 import { extractAllNodes, extractName, getParents, retrieveDebuggableTokens } from './esprima-util';
-import { isValidTS } from './is-valid-ts';
+import { isValidTS, jsFromTs } from './is-valid-ts';
 import { getRegExpForMatchingAllWords } from './text-treatment-util';
 import { stripIntoEsprimableJS } from './ts-stripper';
 
@@ -25,7 +25,11 @@ export class MochaParser {
         if (!isValidTS(script)) {
             return [];
         }
-        script = stripIntoEsprimableJS(script);
+        let js = jsFromTs(script);
+        if (js === null) {
+            throw new Error('Compiled js is null from valid TS : this should not happen');
+        }
+        script = stripIntoEsprimableJS(script, js);
         let res: Debuggable[] = [];
 
         let root = esprima.parseScript(script, { loc: true, range: true, tolerant: true });
