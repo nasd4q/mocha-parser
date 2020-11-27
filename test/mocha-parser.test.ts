@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { sample1, sample2, sample3, sample4, sample5 } from '../_examples-files/aux';
+import { sample1, sample2, sample3, sample4, sample5, sample6, sample7 } from '../_examples-files/aux';
 import { MochaParser } from '../';
  
  
@@ -29,5 +29,15 @@ describe('Extract nodes', function () {
     it('Extracts three nodes out of sample5.txt', async () => {
         let res = MochaParser.extractNodes(await sample5());
         expect(res.length).equals(3);
+    })
+
+    it('Extracts two nodes out of sample6.txt', async () => {
+        let res = MochaParser.extractNodes(await sample6());
+        expect(res.length).equals(2);
+    })
+
+    it('Extracts zero nodes out of sample7.txt (not valid ts)', async () => {
+        let res = MochaParser.extractNodes(await sample7());
+        expect(res.length).equals(0);
     })
 })

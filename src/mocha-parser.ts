@@ -1,5 +1,6 @@
 import * as esprima from 'esprima';
 import { extractAllNodes, extractName, getParents, retrieveDebuggableTokens } from './esprima-util';
+import { isValidTS } from './is-valid-ts';
 import { getRegExpForMatchingAllWords } from './text-treatment-util';
 import { stripIntoEsprimableJS } from './ts-stripper';
 
@@ -21,6 +22,9 @@ interface Debuggable {
 
 export class MochaParser {
     public static extractNodes(script: string): Debuggable[] {
+        if (!isValidTS(script)) {
+            return [];
+        }
         script = stripIntoEsprimableJS(script);
         let res: Debuggable[] = [];
 
