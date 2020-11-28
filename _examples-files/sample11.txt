@@ -1,0 +1,60 @@
+import * as express from 'express';
+import { expect } from 'chai';
+import { Candle, Duration } from 'candle';
+import * as http from 'http';
+import * as axios from 'axios';
+
+import CONFIG from '../../src/00_config/config';
+import { running } from '../../src/index';
+
+
+
+describe('/api/data/:name/:duration/:date/:time', function () {
+
+    let app: express.Express;
+    let server: http.Server
+
+    before(async () => {
+        app = ((await running.app) as express.Express);
+        server = await running.server;
+        return;
+    })
+
+    after(async () => {
+        await new Promise(res => server.close(res));
+    })
+
+    it('response body is an array of minimum 10 candles ' +
+        'for querying natixis, H1, 23/03/2020, 18:34', async () => {
+
+            let url = 'http://localhost:' + CONFIG.PORT + '/api/data/natixis/' +
+                Duration.H1.getCode() + '/23032020/1834';
+
+            let res = await axios.default.get(url);
+            expect(res.status).to.equal(200);
+            expect(Array.isArray(res.data)).to.equal(true);
+            expect(res.data.length).above(10);
+            expect((res.data as any[]).every(cand => Candle.isCandle(cand))).to.equal(true);
+            return;
+        })
+
+    it('fetches two candles with right values for natixis, H1, 11/07/2020, 18:00', async () => {
+        let candle1 = new Candle(2.3780, 2.3925, 2.3615, 2.3810,
+            new Date(2020, 6, 10, 17, 0, 0, 0).getTime(), Duration.H1.getMs(), 1080202);
+        let candle2 = new Candle(2.4150, 2.4285, 2.3860, 2.3890,
+            new Date(2020, 6, 13, 9, 0, 0, 0).getTime(), Duration.H1.getMs(), 1332221);
+
+
+        let url = 'http://localhost:' + CONFIG.PORT + '/api/data/natixis/' +
+            Duration.H1.getCode() + '/11072020/1800';
+
+        let res = await axios.default.get(url);
+
+        expect(res.status).to.equal(200);
+        expect((res.data as Candle[]).some(c =>
+            Candle.areSameValues(c, candle1))).to.equal(true);
+        expect((res.data as Candle[]).some(c =>
+            Candle.areSameValues(c, candle2))).to.equal(true);
+        return;
+    });
+});
