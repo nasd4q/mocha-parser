@@ -1,5 +1,6 @@
 import * as esprima from 'esprima';
-import { extractAllNodes, extractName, getParents, retrieveDebuggableTokens } from './esprima-util';
+import { describe } from 'mocha';
+import { extractAllNodes, extractName, debuggableNodeFromToken, getParents, RangedToken, retrieveDebuggableTokens } from './esprima-util';
 import { isValidTS, jsFromTs } from './is-valid-ts';
 import { getRegExpForMatchingAllWords } from './text-treatment-util';
 import { stripIntoEsprimableJS } from './ts-stripper';
@@ -25,46 +26,26 @@ export class MochaParser {
         if (!isValidTS(script)) {
             return [];
         }
-        let js = jsFromTs(script);
-        if (js === null) {
-            throw new Error('Compiled js is null from valid TS : this should not happen');
-        }
-        script = stripIntoEsprimableJS(script, js);
-        let res: Debuggable[] = [];
 
-        let root = esprima.parseScript(script, { loc: true, range: true, tolerant: true });
-        let tokens = esprima.tokenize(script, { loc: true, range: true, tolerant: true });
-        let { describeTokens, itTokens } = retrieveDebuggableTokens(script);
-        let nodes = extractAllNodes(root);
+        let tokens = (esprima.tokenize(script, { loc: true, range: true, 
+            tolerant: true }) as RangedToken[]);
 
-        let describeNodes = describeTokens.map(t => {
-            let candidates = nodes.filter(n => n.range[0] === (t as any).range[0] && n.type === 'CallExpression');
-            //TODO remove this check 
-            if (candidates.length > 1) {
-                throw new Error('this should not happen');
-            }
-            if (candidates.length === 1) {
-                return candidates[0];
-            }
-            return null;
-        }).filter(n => n !== null);
+        let { describeTokens, itTokens} = retrieveDebuggableTokens(script, tokens);
 
-        let itNodes = itTokens.map(t => {
-            let candidates = nodes.filter(n => n.range[0] === (t as any).range[0] && n.type === 'CallExpression');
-            //TODO remove this check 
-            if (candidates.length > 1) {
-                throw new Error('this should not happen');
-            }
-            if (candidates.length === 1) {
-                return candidates[0];
-            }
-            return null;
-        }).filter(n => n !== null);
+        //Now we need their respective regions... as nodes !
+        let describeNodes = describeTokens.map(t=>debuggableNodeFromToken(t, script, tokens));
+        let itNodes = itTokens.map(t=>debuggableNodeFromToken(t, script, tokens));
+
+        describeNodes = describeNodes.filter(n=>n!==null);
+        itNodes = itNodes.filter(n=>n!==null);
+
 
         let mochaNodes = [...itNodes, ...describeNodes];
 
+        let res: Debuggable[] = [];
+
         itNodes.forEach(n => {
-            let d: Debuggable = {
+            let d = {
                 range: {
                     start: {
                         line: n.loc.start.line,
@@ -77,13 +58,14 @@ export class MochaParser {
                 },
                 type: type.itLike,
                 regexp: getRegExpForMatchingAllWords(
-                    getParents(n, mochaNodes).map(m => extractName(m, tokens)))
+                    getParents(n, mochaNodes).map(m => extractName(m, tokens))),
+                scriptSubstr: script.substring(n.range[0], n.range[1])
             }
             res.push(d);
         });
 
         describeNodes.forEach(n => {
-            let d: Debuggable = {
+            let d = {
                 range: {
                     start: {
                         line: n.loc.start.line,
@@ -96,10 +78,14 @@ export class MochaParser {
                 },
                 type: type.describeLike,
                 regexp: getRegExpForMatchingAllWords(
-                    getParents(n, mochaNodes).map(m => extractName(m, tokens)))
+                    getParents(n, mochaNodes).map(m => extractName(m, tokens))),
+                    scriptSubstr: script.substring(n.range[0], n.range[1])
+
             }
             res.push(d);
         });
+        //TODO comment this - DEBUG ONLY
+        //res.forEach(r=>console.log(r.regexp));
         return res;
     }
 }

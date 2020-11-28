@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { sample1, sample10, sample2, sample3, sample4, sample5, sample6, sample7, sample8, sample9 } from '../_examples-files/aux';
 //TODO test from _out/
-import { MochaParser } from '../src/mocha-parser';
+import { MochaParser } from '..';
  
 describe('Extract nodes', function () {
     this.timeout(0);

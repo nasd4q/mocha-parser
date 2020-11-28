@@ -1,6 +1,6 @@
 {
     "name": "mocha-parser",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "description": "",
     "main": "./_out/mocha-parser",
     "files": [
@@ -9,7 +9,7 @@
     "scripts": {
         "test": "mocha -r ts-node/register test/**/*.ts",
         "compile": "tsc -p tsconfig.json",
-        "prepublishOnly": "npm run compile"
+        "prepublishOnly": "rm -rf ./_out && npm run compile && npm run test"
     },
     "author": "",
     "license": "ISC",
