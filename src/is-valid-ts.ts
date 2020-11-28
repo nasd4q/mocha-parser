@@ -11,7 +11,10 @@ export function isValidTS(s: string):boolean {
 }
 
 export function jsFromTs(tsScript: string):string {
-    tsScript = tsScript.replace(/^import .* from \S*;.*$/gm, m => ' '.repeat(m.length));
+    tsScript = tsScript.replace(/^import .* from \S.*;.*$/gm, m => ' '.repeat(m.length));
+    tsScript = tsScript.replace(/export/g, m => ' '.repeat(m.length));
+    tsScript = tsScript.replace(/default/g, m => ' '.repeat(m.length));
+
     let r = tsnode.create({transpileOnly : true, compilerOptions: { target: "es2020", module: "commonjs", sourceMap: false, inlineSourceMap: false }});
     let js: string;
     try {

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
-import { sample1, sample2, sample3, sample4, sample5, sample6, sample7, sample8, sample9 } from '../_examples-files/aux';
-import { MochaParser } from '..';
+import { sample1, sample10, sample2, sample3, sample4, sample5, sample6, sample7, sample8, sample9 } from '../_examples-files/aux';
+//TODO test from _out/
+import { MochaParser } from '../src/mocha-parser';
  
 describe('Extract nodes', function () {
     this.timeout(0);
@@ -47,6 +48,11 @@ describe('Extract nodes', function () {
 
     it('Extracts two nodes out of sample9.txt ', async () => {
         let res = MochaParser.extractNodes(await sample9());
+        expect(res.length).equals(2);
+    })
+
+    it('Extracts two nodes out of sample10.txt ', async () => {
+        let res = MochaParser.extractNodes(await sample10());
         expect(res.length).equals(2);
     })
 })

@@ -3,6 +3,15 @@ import * as esprima from 'esprima';
 import { areSameToken, eraseToken, parityFilter } from './esprima-util';
 
 export function stripIntoEsprimableJS(script: string, js: string): string {
+
+    /*TODO : change method : 
+        1. retrieve debuggable tokens.
+        2. for each dtoken find its block (expand until it is valid ts)
+        3. isolate block and transpile
+        4. compare compilation result with original and arrange
+
+
+    */
     let tokens = esprima.tokenize(script, { loc: true, range: true, tolerant: true });
     let jsTokens = esprima.tokenize(js, { loc: true, range: true, tolerant: true });
     let getError = (): boolean => {
@@ -48,27 +57,44 @@ export function stripIntoEsprimableJS(script: string, js: string): string {
             return {targetI: o.index, sourceI: matches};
         });
 
-        //console.log('here');
+        function updateMatches(matches: {targetI: number, sourceI:number[]}[]) {
+            matches = matches.map(m=>{
+                return {
+                    targetI : m.targetI,
+                    sourceI : m.sourceI,
+                    targetToken : jsTokens[m.targetI],
+                    sourceTokens : m.sourceI.map(i=>
+                        tokens[i])
+                }
+            })
+            return matches;
+        }
+
+        matches = updateMatches(matches);
 
 
         let min = 0;
         for (var i = 0; i < matches.length; i++) {
             let currentPossibilities = matches[i].sourceI;
             matches[i].sourceI = currentPossibilities.filter(n => n >= min);
-            min = matches[i].sourceI.sort((a, b) => a - b)[0] + 1;
+            if (matches[i].sourceI.length > 0) {
+                min = matches[i].sourceI.sort((a, b) => a - b)[0] + 1;
+            }
         }
 
-       // console.log('here');
+        matches = updateMatches(matches);
 
 
         let max = 9999999999;
         for (var i = matches.length - 1; i > -1; i--) {
             let currentPossibilities = matches[i].sourceI;
             matches[i].sourceI = currentPossibilities.filter(n => n <= max);
-            max = matches[i].sourceI.sort((a, b) => b - a)[0] - 1;
+            if (matches[i].sourceI.length > 0) {
+                max = matches[i].sourceI.sort((a, b) => b - a)[0] - 1;
+            }
         }
 
-      //  console.log('here');
+        matches = updateMatches(matches);
 
         let keptIdentifiers = sourceIdentifiers.filter(obj=>{
             return matches.some(match=>{
@@ -86,7 +112,8 @@ export function stripIntoEsprimableJS(script: string, js: string): string {
         let sourceTokens = tokens.filter((t,i)=> i>= minIndexOfSourceTokens && i <= maxIndexOfSourceTokens);
 
         let targetIdentifierBeforeI = matches
-            .filter(o=>o.sourceI.includes(minIndexOfSourceTokens))[0].targetI;
+            .filter(o=>
+                o.sourceI.includes(minIndexOfSourceTokens))[0].targetI;
         let targetIdentifierAfterI = matches
         .filter(o=>o.sourceI.includes(maxIndexOfSourceTokens))[0].targetI;
 
